@@ -13,12 +13,6 @@ import androidx.compose.ui.Modifier
 @Composable
 fun App() {
     MaterialTheme {
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(onClick = {
-                DI.scanTest.printScan()
-            }) {
-                Text("Scan")
-            }
-        }
+        ScanScreen()
     }
 }

@@ -6,7 +6,9 @@ enum class BluetoothDeviceState {
     Connected, NotConnected
 }
 
-interface BluetoothDevice {
+expect class BluetoothDevice(
+    name: String?
+) {
     val state: StateFlow<BluetoothDeviceState>
     val characteristics: List<DeviceCharacteristic>
 

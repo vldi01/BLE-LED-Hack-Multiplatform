@@ -1,9 +1,7 @@
 import core.Scanner
+import architecture.ViewModel
 
 object DI {
-    val scanTest = ScanTest()
-}
-
-expect object MDI {
-    val scanner: Scanner
+    val scanner = Scanner()
+    val viewModel = ViewModel(scanner)
 }

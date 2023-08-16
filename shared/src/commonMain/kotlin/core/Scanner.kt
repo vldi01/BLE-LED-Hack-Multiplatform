@@ -1,10 +1,11 @@
 package core
 
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-interface Scanner {
-    val devices: StateFlow<List<Pair<String, BluetoothDevice>>>
+expect class Scanner() {
+    val devices: StateFlow<List<BluetoothDevice>>
 
-    fun startScan() {}
-    fun stopScan() {}
+    fun startScan()
+    fun stopScan()
 }

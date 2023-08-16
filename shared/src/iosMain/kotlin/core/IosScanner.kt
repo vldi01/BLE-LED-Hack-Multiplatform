@@ -1,32 +1,48 @@
 package core
 
-import core.BluetoothDevice
-import core.Scanner
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import platform.CoreBluetooth.CBCentralManager
 import platform.CoreBluetooth.CBCentralManagerDelegateProtocol
+import platform.CoreBluetooth.CBManagerStatePoweredOff
+import platform.CoreBluetooth.CBManagerStatePoweredOn
+import platform.CoreBluetooth.CBManagerStateUnauthorized
+import platform.CoreBluetooth.CBManagerStateUnknown
+import platform.CoreBluetooth.CBManagerStateUnsupported
+import platform.CoreBluetooth.CBPeripheral
+import platform.Foundation.NSNumber
 import platform.darwin.NSObject
 
-class IosScanner : Scanner, NSObject(), CBCentralManagerDelegateProtocol {
+@Suppress("CONFLICTING_OVERLOADS")
+actual class Scanner : NSObject(), CBCentralManagerDelegateProtocol {
     private var cbCentralManager: CBCentralManager? = null
 
-    private val _devices = MutableStateFlow(emptyList<Pair<String, BluetoothDevice>>())
-    override val devices: StateFlow<List<Pair<String, BluetoothDevice>>> = _devices.asStateFlow()
+    private val _devices = MutableStateFlow(emptyList<BluetoothDevice>())
+    actual val devices: StateFlow<List<BluetoothDevice>> = _devices.asStateFlow()
 
     override fun centralManagerDidUpdateState(central: CBCentralManager) {
-
+        if (central.state == CBManagerStatePoweredOn) {
+            central.scanForPeripheralsWithServices(null, null)
+        }
     }
 
-    override fun startScan() {
+    override fun centralManager(
+        central: CBCentralManager,
+        didDiscoverPeripheral: CBPeripheral,
+        advertisementData: Map<Any?, *>,
+        RSSI: NSNumber
+    ) {
+        _devices.update { it + BluetoothDevice(didDiscoverPeripheral.name) }
+    }
+
+    actual fun startScan() {
         cbCentralManager = CBCentralManager(this, null)
     }
 
-    override fun stopScan() {
+    actual fun stopScan() {
         cbCentralManager?.stopScan()
         cbCentralManager = null
     }
-
-
 }
