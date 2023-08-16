@@ -34,6 +34,7 @@ actual class Scanner : NSObject(), CBCentralManagerDelegateProtocol {
         advertisementData: Map<Any?, *>,
         RSSI: NSNumber
     ) {
+        didDiscoverPeripheral.name ?: return
         _devices.update { it + BluetoothDevice(didDiscoverPeripheral.name) }
     }
 

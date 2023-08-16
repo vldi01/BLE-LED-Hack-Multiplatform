@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-actual class BluetoothDevice {
+actual class BluetoothDevice actual constructor(actual val name: String?) {
     private val _state = MutableStateFlow(BluetoothDeviceState.NotConnected)
     actual val state: StateFlow<BluetoothDeviceState> = _state.asStateFlow()
 
@@ -18,4 +18,5 @@ actual class BluetoothDevice {
     actual fun disconnect() {
         TODO("Not yet implemented")
     }
+
 }
