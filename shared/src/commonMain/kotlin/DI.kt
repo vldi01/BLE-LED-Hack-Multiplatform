@@ -1,3 +1,5 @@
+import core.Scanner
+
 object DI {
     val scanTest = ScanTest()
 }

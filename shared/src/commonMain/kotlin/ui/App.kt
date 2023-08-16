@@ -1,3 +1,6 @@
+package ui
+
+import DI
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Button
@@ -19,5 +22,3 @@ fun App() {
         }
     }
 }
-
-expect fun getPlatformName(): String

@@ -1,3 +1,5 @@
+package core
+
 import kotlinx.coroutines.flow.StateFlow
 
 interface Scanner {
