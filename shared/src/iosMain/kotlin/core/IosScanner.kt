@@ -35,7 +35,7 @@ actual class Scanner : NSObject(), CBCentralManagerDelegateProtocol {
         RSSI: NSNumber
     ) {
         didDiscoverPeripheral.name ?: return
-        _devices.update { it + BluetoothDevice(didDiscoverPeripheral.name) }
+        _devices.update { it + BluetoothDevice(didDiscoverPeripheral.name ?: "", didDiscoverPeripheral.identifier.UUIDString) }
     }
 
     actual fun startScan() {

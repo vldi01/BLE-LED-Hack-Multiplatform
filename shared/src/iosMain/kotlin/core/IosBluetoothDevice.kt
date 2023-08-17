@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import platform.CoreBluetooth.CBPeripheralDelegateProtocol
 import platform.darwin.NSObject
 
-actual class BluetoothDevice actual constructor(actual val name: String?) : NSObject(), CBPeripheralDelegateProtocol {
+actual class BluetoothDevice actual constructor(actual val name: String, actual val id: String) : NSObject(), CBPeripheralDelegateProtocol {
     private val _state = MutableStateFlow(BluetoothDeviceState.NotConnected)
     actual val state: StateFlow<BluetoothDeviceState> = _state.asStateFlow()
 
