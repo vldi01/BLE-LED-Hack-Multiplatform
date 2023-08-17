@@ -1,13 +1,21 @@
 package ui
 
-import androidx.compose.material.MaterialTheme
+import DI
 import androidx.compose.runtime.Composable
-import ui.screens.ScanScreen
+import androidx.compose.runtime.LaunchedEffect
+import com.diachuk.routing.RoutingHost
+import ui.screens.ScanRoute
 import ui.theme.AppTheme
 
 @Composable
 fun App() {
+    val routing = DI.routing
+
+    LaunchedEffect(Unit) {
+        routing.changeCurrent(ScanRoute)
+    }
+
     AppTheme {
-        ScanScreen()
+        RoutingHost(routing = routing)
     }
 }

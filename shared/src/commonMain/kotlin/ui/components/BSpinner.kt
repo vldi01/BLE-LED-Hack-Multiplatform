@@ -34,7 +34,7 @@ fun BSpinner(
     onAngleChanged: (Float) -> Unit,
     modifier: Modifier = Modifier,
     vibrationEveryDegree: Float = 5f,
-    color: Color = AppTheme.colors.background,
+    color: Color = AppTheme.colors.primary,
 ) {
     var lastAngle by remember { mutableStateOf(0f) }
     var size by remember { mutableStateOf(IntSize(0, 0)) }
@@ -68,7 +68,7 @@ fun BSpinner(
                         lastAngle = newAngle
 
                         if (abs(change) >= vibrationEveryDegree) {
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                             change = 0f
                         }
                     }
@@ -86,7 +86,7 @@ fun BSpinner(
                     shape = CircleShape,
                     height = (-1.2).dp
                 )
-                .background(color)
+                .background(Color.DarkGray)
         )
     }
 }

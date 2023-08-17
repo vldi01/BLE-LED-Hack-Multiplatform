@@ -1,7 +1,9 @@
-import core.Scanner
 import architecture.ViewModel
+import com.diachuk.routing.Routing
+import core.Scanner
 
 object DI {
-    val scanner = Scanner()
-    val viewModel = ViewModel(scanner)
+    private val scanner = Scanner()
+    val routing = Routing()
+    val viewModel = ViewModel(scanner, routing)
 }
