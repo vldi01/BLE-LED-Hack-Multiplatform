@@ -6,6 +6,10 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.ui.platform.LocalHapticFeedback
+import core.Platform
+import core.platform
+import ui.components.BHapticFeedback
 
 val LocalColors = compositionLocalOf { AppColors { light } }
 
@@ -20,8 +24,12 @@ fun AppTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = if (darkTheme) AppColors { dark } else AppColors { light }
+    val hapticFeedback = if (platform == Platform.Ios) BHapticFeedback() else LocalHapticFeedback.current
 
-    CompositionLocalProvider(LocalColors provides colorScheme) {
+    CompositionLocalProvider(
+        LocalColors provides colorScheme,
+        LocalHapticFeedback provides hapticFeedback
+    ) {
         MaterialTheme(
             colorScheme = lightColorScheme(
                 primary = colorScheme.primary,

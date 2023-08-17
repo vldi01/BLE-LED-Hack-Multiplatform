@@ -68,7 +68,7 @@ fun BSpinner(
                         lastAngle = newAngle
 
                         if (abs(change) >= vibrationEveryDegree) {
-                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             change = 0f
                         }
                     }
