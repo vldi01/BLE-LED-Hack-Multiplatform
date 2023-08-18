@@ -1,9 +1,10 @@
 package core
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 
 enum class BluetoothDeviceState {
-    Connected, NotConnected
+    Connected, NotConnected, Failed, Connecting
 }
 
 expect class BluetoothDevice(name: String, id: String) {
@@ -15,4 +16,6 @@ expect class BluetoothDevice(name: String, id: String) {
 
     fun connect()
     fun disconnect()
+
+    suspend fun write(data: ByteArray, characteristicId: String): Boolean
 }

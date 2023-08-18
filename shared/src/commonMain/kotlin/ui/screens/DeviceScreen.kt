@@ -68,10 +68,18 @@ fun DeviceScreenUi(state: AppState, pushEvent: (AppEvent) -> Unit) {
             .fillMaxSize()
             .background(AppTheme.colors.background)
     ) {
-        Button({
-            routing.navigateBack()
-        }){
-            Text("Go back")
+        Row {
+            Button({
+                routing.navigateBack()
+            }){
+                Text("Go back")
+            }
+            BSpacer()
+            Button({
+                pushEvent(AppEvent.Reconnect)
+            }){
+                Text("Reconnect")
+            }
         }
         Text(text = state.selectedDevice.name)
         Text(text = "Connections state: ${state.selectedDevice.state.collectAsState().value}")

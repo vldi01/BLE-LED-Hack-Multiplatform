@@ -6,12 +6,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import platform.CoreBluetooth.CBCentralManager
 import platform.CoreBluetooth.CBCentralManagerDelegateProtocol
-import platform.CoreBluetooth.CBManagerStatePoweredOff
 import platform.CoreBluetooth.CBManagerStatePoweredOn
-import platform.CoreBluetooth.CBManagerStateUnauthorized
-import platform.CoreBluetooth.CBManagerStateUnknown
-import platform.CoreBluetooth.CBManagerStateUnsupported
 import platform.CoreBluetooth.CBPeripheral
+import platform.Foundation.NSError
 import platform.Foundation.NSNumber
 import platform.darwin.NSObject
 
@@ -35,15 +32,46 @@ actual class Scanner : NSObject(), CBCentralManagerDelegateProtocol {
         RSSI: NSNumber
     ) {
         didDiscoverPeripheral.name ?: return
-        _devices.update { it + BluetoothDevice(didDiscoverPeripheral.name ?: "", didDiscoverPeripheral.identifier.UUIDString) }
+        _devices.update {
+            it + BluetoothDevice(
+                scanner = this,
+                peripheral = didDiscoverPeripheral,
+                name = didDiscoverPeripheral.name ?: "",
+                id = didDiscoverPeripheral.identifier.UUIDString,
+            )
+        }
+    }
+
+    override fun centralManager(central: CBCentralManager, didConnectPeripheral: CBPeripheral) {
+        val id = didConnectPeripheral.identifier.UUIDString
+        _devices.value.firstOrNull { it.id == id }?.onConnect()
+    }
+
+    override fun centralManager(central: CBCentralManager, didDisconnectPeripheral: CBPeripheral, error: NSError?) {
+        val id = didDisconnectPeripheral.identifier.UUIDString
+        _devices.value.firstOrNull { it.id == id }?.onDisconnect()
+    }
+
+    override fun centralManager(central: CBCentralManager, didFailToConnectPeripheral: CBPeripheral, error: NSError?) {
+        val id = didFailToConnectPeripheral.identifier.UUIDString
+        _devices.value.firstOrNull { it.id == id }?.onFail()
     }
 
     actual fun startScan() {
+        _devices.value = emptyList()
         cbCentralManager = CBCentralManager(this, null)
     }
 
     actual fun stopScan() {
         cbCentralManager?.stopScan()
         cbCentralManager = null
+    }
+
+    fun connectDevice(peripheral: CBPeripheral) {
+        cbCentralManager?.connectPeripheral(peripheral, null)
+    }
+
+    fun disconnectDevice(peripheral: CBPeripheral) {
+        cbCentralManager?.cancelPeripheralConnection(peripheral)
     }
 }

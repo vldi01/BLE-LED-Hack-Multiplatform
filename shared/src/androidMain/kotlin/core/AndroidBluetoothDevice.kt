@@ -19,4 +19,7 @@ actual class BluetoothDevice actual constructor(actual val name: String, actual 
         TODO("Not yet implemented")
     }
 
+    actual fun write(data: ByteArray, characteristicId: String) {
+        TODO("Not yet implemented")
+    }
 }

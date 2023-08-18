@@ -1,5 +1,6 @@
 package core
 
-interface DeviceCharacteristic {
+expect class DeviceCharacteristic(id: String) {
+    val id: String
     fun write(data: ByteArray)
 }
