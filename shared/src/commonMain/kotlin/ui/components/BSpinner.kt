@@ -63,12 +63,16 @@ fun BSpinner(
                     onDrag = { pointer, _ ->
                         val newAngle = calculateAngle(pointer.position)
                         val difference = calculateAngleDifference(lastAngle, newAngle)
-                        onAngleChanged(difference)
                         change += difference
                         lastAngle = newAngle
 
                         if (abs(change) >= vibrationEveryDegree) {
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            if(change > 0) {
+                                onAngleChanged(vibrationEveryDegree)
+                            } else {
+                                onAngleChanged(-vibrationEveryDegree)
+                            }
                             change = 0f
                         }
                     }

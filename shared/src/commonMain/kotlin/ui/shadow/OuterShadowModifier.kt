@@ -51,7 +51,7 @@ fun Modifier.outerShadow(
                 }
             }
         }
-        .graphicsLayer(shape = shape, clip = true)
+        .graphicsLayer(shape = shape, clip = clip)
 }
 
 fun Modifier.outerShadow(

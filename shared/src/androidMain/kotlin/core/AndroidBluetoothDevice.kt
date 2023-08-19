@@ -4,12 +4,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-actual class BluetoothDevice actual constructor(actual val name: String, actual val id: String) {
+actual class BluetoothDevice {
     private val _state = MutableStateFlow(BluetoothDeviceState.NotConnected)
     actual val state: StateFlow<BluetoothDeviceState> = _state.asStateFlow()
 
-    private val _characteristics = mutableListOf<DeviceCharacteristic>()
-    actual val characteristics: List<DeviceCharacteristic> = _characteristics.toList()
+    actual val name: String
+        get() = TODO("Not yet implemented")
+    actual val id: String
+        get() = TODO("Not yet implemented")
+    actual val characteristics: Map<String, ServiceCharacteristic>
+        get() = TODO("Not yet implemented")
 
     actual fun connect() {
         TODO("Not yet implemented")
@@ -19,7 +23,9 @@ actual class BluetoothDevice actual constructor(actual val name: String, actual 
         TODO("Not yet implemented")
     }
 
-    actual fun write(data: ByteArray, characteristicId: String) {
+
+    actual suspend fun write(data: ByteArray, characteristicId: String): Boolean {
         TODO("Not yet implemented")
     }
+
 }

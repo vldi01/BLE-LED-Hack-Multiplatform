@@ -19,6 +19,8 @@ actual class Scanner : NSObject(), CBCentralManagerDelegateProtocol {
     private val _devices = MutableStateFlow(emptyList<BluetoothDevice>())
     actual val devices: StateFlow<List<BluetoothDevice>> = _devices.asStateFlow()
 
+    private var isScanning = false
+
     override fun centralManagerDidUpdateState(central: CBCentralManager) {
         if (central.state == CBManagerStatePoweredOn) {
             central.scanForPeripheralsWithServices(null, null)
@@ -58,13 +60,18 @@ actual class Scanner : NSObject(), CBCentralManagerDelegateProtocol {
     }
 
     actual fun startScan() {
+        if(isScanning) return
+
+        isScanning = true
         _devices.value = emptyList()
         cbCentralManager = CBCentralManager(this, null)
     }
 
     actual fun stopScan() {
+        if(!isScanning) return
+
+        isScanning = false
         cbCentralManager?.stopScan()
-        cbCentralManager = null
     }
 
     fun connectDevice(peripheral: CBPeripheral) {

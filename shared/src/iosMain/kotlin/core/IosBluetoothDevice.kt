@@ -1,68 +1,56 @@
 package core
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import kotlinx.cinterop.BetaInteropApi
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.allocArrayOf
+import kotlinx.cinterop.memScoped
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import platform.CoreBluetooth.CBCharacteristic
+import platform.CoreBluetooth.CBCharacteristicWriteWithoutResponse
 import platform.CoreBluetooth.CBPeripheral
 import platform.CoreBluetooth.CBPeripheralDelegateProtocol
 import platform.CoreBluetooth.CBService
+import platform.Foundation.NSData
 import platform.Foundation.NSError
+import platform.Foundation.create
 import platform.darwin.NSObject
 
-actual class BluetoothDevice actual constructor(
+actual class BluetoothDevice(
+    private val scanner: Scanner,
+    private val peripheral: CBPeripheral,
     actual val name: String,
     actual val id: String
 ) : NSObject(), CBPeripheralDelegateProtocol {
     private val _state = MutableStateFlow(BluetoothDeviceState.NotConnected)
     actual val state: StateFlow<BluetoothDeviceState> = _state.asStateFlow()
 
-    private val _characteristics = mutableListOf<DeviceCharacteristic>()
-    actual val characteristics: List<DeviceCharacteristic> get() = _characteristics.toList()
-
-    private var peripheral: CBPeripheral? = null
-    private var scanner: Scanner? = null
-
-    private var sendWaitJob: Job? = null
-    private val mutex = Mutex()
-    private val scope = DI.scope
-
-    constructor(scanner: Scanner, peripheral: CBPeripheral, name: String, id: String) : this(name, id) {
-        this.scanner = scanner
-        this.peripheral = peripheral
-    }
+    private val _characteristics = hashMapOf<String, ServiceCharacteristic>()
+    actual val characteristics: Map<String, ServiceCharacteristic> = _characteristics
 
     actual fun connect() {
         if (_state.value == BluetoothDeviceState.Connecting || _state.value == BluetoothDeviceState.Connected) return
 
         _state.value = BluetoothDeviceState.Connecting
-        peripheral?.let {
-            it.delegate = this
-            scanner?.connectDevice(it)
-        }
+        peripheral.delegate = this
+        scanner.connectDevice(peripheral)
     }
 
     actual fun disconnect() {
         if (_state.value != BluetoothDeviceState.Connected && _state.value != BluetoothDeviceState.Connecting) return
 
-        peripheral?.let { scanner?.disconnectDevice(it) }
+        scanner.disconnectDevice(peripheral)
     }
 
     fun onConnect() {
         _state.value = BluetoothDeviceState.Connected
-        _characteristics.clear()
-        peripheral?.discoverServices(null)
+        peripheral.discoverServices(null)
     }
 
     fun onDisconnect() {
         _state.value = BluetoothDeviceState.NotConnected
-        _characteristics.clear()
+        connect()
     }
 
     fun onFail() {
@@ -82,47 +70,31 @@ actual class BluetoothDevice actual constructor(
         }
     }
 
-    override fun peripheral(peripheral: CBPeripheral, didWriteValueForCharacteristic: CBCharacteristic, error: NSError?) {
-        sendWaitJob?.cancel()
-        if(error != null) {
-            println("error = ${error}")
-        }
-    }
-
     override fun peripheral(peripheral: CBPeripheral, didDiscoverCharacteristicsForService: CBService, error: NSError?) {
         val service = didDiscoverCharacteristicsForService
 
-        val deviceCharacteristics = service.characteristics
-            ?.mapNotNull { any ->
-                (any as? CBCharacteristic)?.let { DeviceCharacteristic(it, peripheral) }
-            }
-            ?: return
-
-        _characteristics += deviceCharacteristics
+        service.characteristics?.forEach {
+            val nativeCharacteristic = (it as? CBCharacteristic) ?: return@forEach
+            val characteristic = ServiceCharacteristic(nativeCharacteristic)
+            _characteristics[characteristic.id] = characteristic
+        }
     }
 
+    @BetaInteropApi
+    @OptIn(ExperimentalForeignApi::class)
     actual suspend fun write(data: ByteArray, characteristicId: String): Boolean {
-        mutex.withLock {
-            _characteristics.firstOrNull { it.id == characteristicId }?.write(data)
-        }
-
         if (_state.value != BluetoothDeviceState.Connected) return false
 
-        mutex.withLock {
-            val characteristic = _characteristics.firstOrNull { it.id == characteristicId } ?: return false
-            var timeout = false
+        val characteristic = _characteristics[characteristicId] ?: return false
 
-            sendWaitJob = scope.launch {
-                delay(SEND_TIMEOUT_MILLIS)
-                timeout = true
-            }
-
-            characteristic.write(data)
-            sendWaitJob?.join()
-
-            return !timeout
+        val nsData = memScoped {
+            NSData.create(
+                bytes = allocArrayOf(data),
+                length = data.size.toULong()
+            )
         }
+        peripheral.writeValue(nsData, characteristic.nativeCharacteristic, CBCharacteristicWriteWithoutResponse)
+
+        return true
     }
 }
-
-private const val SEND_TIMEOUT_MILLIS = 5000L

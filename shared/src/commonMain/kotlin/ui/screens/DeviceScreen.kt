@@ -83,6 +83,10 @@ fun DeviceScreenUi(state: AppState, pushEvent: (AppEvent) -> Unit) {
         }
         Text(text = state.selectedDevice.name)
         Text(text = "Connections state: ${state.selectedDevice.state.collectAsState().value}")
+        val colorText = resultColor().let {
+            "R: ${(it.red*255).toInt()} G: ${(it.green*255).toInt()} B: ${(it.blue*255).toInt()}"
+        }
+        Text(text = "Color: $colorText")
 
         BSpacer(24.dp)
 

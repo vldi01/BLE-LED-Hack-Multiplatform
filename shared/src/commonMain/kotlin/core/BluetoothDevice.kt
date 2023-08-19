@@ -1,15 +1,14 @@
 package core
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 
 enum class BluetoothDeviceState {
     Connected, NotConnected, Failed, Connecting
 }
 
-expect class BluetoothDevice(name: String, id: String) {
+expect class BluetoothDevice {
     val state: StateFlow<BluetoothDeviceState>
-    val characteristics: List<DeviceCharacteristic>
+    val characteristics: Map<String, ServiceCharacteristic>
 
     val name: String
     val id: String

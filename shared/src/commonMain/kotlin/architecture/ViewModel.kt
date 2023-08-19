@@ -44,6 +44,7 @@ class ViewModel(
             }
             is AppEvent.DeviceSelected -> {
                 val device = _state.value.discoveredDevices[event.deviceIndex]
+                scanner.stopScan()
                 device.connect()
                 _state.update { it.copy(selectedDevice = device) }
                 routing.navigate(DeviceRoute)
