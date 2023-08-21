@@ -1,5 +1,6 @@
 package core
 
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +18,7 @@ actual class Scanner : NSObject(), CBCentralManagerDelegateProtocol {
     private var cbCentralManager: CBCentralManager? = null
 
     private val _devices = MutableStateFlow(emptyList<BluetoothDevice>())
-    actual val devices: StateFlow<List<BluetoothDevice>> = _devices.asStateFlow()
+    actual val devices: Flow<List<BluetoothDevice>> = _devices.asStateFlow()
 
     private var isScanning = false
 
