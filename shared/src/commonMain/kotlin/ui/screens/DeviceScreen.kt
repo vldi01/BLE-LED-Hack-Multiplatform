@@ -15,7 +15,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,16 +22,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import architecture.AppEvent
 import architecture.AppState
+import architecture.ViewModel
 import com.diachuk.routing.LocalRouting
 import com.diachuk.routing.routes.createRoute
-import ui.App
+import org.koin.compose.koinInject
 import ui.components.BSpacer
 import ui.components.BSpinner
 import ui.shadow.zHeight
 import ui.theme.AppTheme
 
 val DeviceRoute = createRoute {
-    val vm = DI.viewModel
+    val vm = koinInject<ViewModel>()
     DeviceScreenUi(
         vm.state.collectAsState().value
     ) { vm.onEvent(it) }
@@ -71,20 +71,20 @@ fun DeviceScreenUi(state: AppState, pushEvent: (AppEvent) -> Unit) {
         Row {
             Button({
                 routing.navigateBack()
-            }){
+            }) {
                 Text("Go back")
             }
             BSpacer()
             Button({
                 pushEvent(AppEvent.Reconnect)
-            }){
+            }) {
                 Text("Reconnect")
             }
         }
         Text(text = state.selectedDevice.name)
         Text(text = "Connections state: ${state.selectedDevice.state.collectAsState().value}")
         val colorText = resultColor().let {
-            "R: ${(it.red*255).toInt()} G: ${(it.green*255).toInt()} B: ${(it.blue*255).toInt()}"
+            "R: ${(it.red * 255).toInt()} G: ${(it.green * 255).toInt()} B: ${(it.blue * 255).toInt()}"
         }
         Text(text = "Color: $colorText")
 

@@ -1,8 +1,6 @@
 package architecture
 
-import DI
 import com.diachuk.routing.Routing
-import core.BluetoothDevice
 import core.Scanner
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,17 +29,22 @@ class ViewModel(
     fun onEvent(event: AppEvent) {
         when (event) {
             AppEvent.ScanClick -> scan()
-            AppEvent.DeviceScreenClosed -> {_state.value.selectedDevice?.disconnect()}
+            AppEvent.DeviceScreenClosed -> {
+                _state.value.selectedDevice?.disconnect()
+            }
+
             is AppEvent.SendColor -> {
                 viewModelScope.launch {
                     _state.value.selectedDevice?.write(Commands.colorCommand(event.color), "FFD9")
                 }
             }
+
             is AppEvent.SendPower -> {
                 viewModelScope.launch {
                     _state.value.selectedDevice?.write(Commands.switchOn(event.on), "FFD9")
                 }
             }
+
             is AppEvent.DeviceSelected -> {
                 val device = _state.value.discoveredDevices[event.deviceIndex]
                 scanner.stopScan()

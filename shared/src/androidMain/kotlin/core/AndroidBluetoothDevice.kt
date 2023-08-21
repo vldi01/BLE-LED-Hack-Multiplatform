@@ -4,7 +4,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-actual class BluetoothDevice {
+actual class BluetoothDevice(
+    val nativeDevice: android.bluetooth.BluetoothDevice
+) {
     private val _state = MutableStateFlow(BluetoothDeviceState.NotConnected)
     actual val state: StateFlow<BluetoothDeviceState> = _state.asStateFlow()
 
